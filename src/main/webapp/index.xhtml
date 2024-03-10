@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+<h:head>
+    <title>Mini Projet</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style type="text/css">
+
+    </style>
+</h:head>
+<h:body>
+    <div class="container">
+        <h:form>
+            <div class="text-end">
+                <p:commandLink action="#{client.changeLocale('en')}" styleClass="btn me-2" update=":formManagedBean :form :addForm">
+                    <p:graphicImage value="assets/flags/united-states.svg" style="height: 20px; width: auto;"/>
+                </p:commandLink>
+                <p:commandLink action="#{client.changeLocale('fr')}" styleClass="btn" update=":formManagedBean :form:dataTable :addForm">
+                    <p:graphicImage value="assets/flags/france.svg" style="height: 20px; width: auto;" />
+                </p:commandLink>
+            </div>
+        </h:form>
+    </div>
+    <div class="container">
+    <h:form id="formManagedBean" styleClass="mt-3">
+        <p:messages id="formManagedBeanMessages" showDetail="true" autoUpdate="false" closable="true" />
+    </h:form>
+    <h:form id="form">
+        <div class="row">
+            <div class="col-9">
+                <p:inputText class="form-control" placeholder='#{client.__("global.type_search_keyword")}' value="#{client.keyword}" />
+            </div>
+            <div class="col-3">
+                <p:commandButton value='#{client.__("global.search")}' styleClass="btn btn-primary p-0 border-0 w-100" action="#{client.filterByKeyword()}" update=":form:dataTable" />
+            </div>
+        </div>
+    <p:dataTable id="dataTable" var="c" value="#{client.clients}" paginator="true" rows="5" tableStyleClass="table" emptyMessage='#{client.__("global.nothing_to_show")}'>
+
+        <p:column headerText='#{client.__("global.id")}'>
+            <h:outputText value="#{c.id}" />
+        </p:column>
+        <p:column headerText='#{client.__("global.first_name")}'>
+            <h:panelGroup rendered="#{not c.editable}">
+                <h:outputText value="#{c.firstName}" />
+            </h:panelGroup>
+            <h:panelGroup rendered="#{c.editable}">
+                <h:inputText id="updateFirstName" value="#{c.firstName}" required="true" class="form-control" requiredMessage='#{client.__("validator.required_first_name")}' validatorMessage='#{client.__("validator.invalid_first_name")}'>
+                    <f:validateRegex pattern="^[a-zA-Z]+$" />
+                </h:inputText>
+                <h:message for="updateFirstName" styleClass="text-danger" />
+            </h:panelGroup>
+        </p:column>
+        <p:column headerText='#{client.__("global.last_name")}'>
+            <h:panelGroup rendered="#{not c.editable}">
+                <h:outputText value="#{c.lastName}" />
+            </h:panelGroup>
+            <h:panelGroup rendered="#{c.editable}">
+                <h:inputText id="updateLastName" value="#{c.lastName}" required="true" class="form-control" requiredMessage='#{client.__("validator.required_last_name")}' validatorMessage='#{client.__("validator.invalid_last_name")}'>
+                    <f:validateRegex pattern="^[a-zA-Z ]+$" />
+                </h:inputText>
+                <h:message for="updateLastName" styleClass="text-danger" />
+            </h:panelGroup>
+        </p:column>
+        <p:column headerText='#{client.__("global.email")}'>
+            <h:panelGroup rendered="#{not c.editable}">
+                <h:outputText value="#{c.email}" />
+            </h:panelGroup>
+            <h:panelGroup rendered="#{c.editable}">
+                <h:inputText id="updateEmail" value="#{c.email}" required="true" class="form-control"  requiredMessage='#{client.__("validator.required_email")}' validatorMessage='#{client.__("validator.invalid_email")}'>
+                    <f:validateRegex pattern="^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$" />
+                </h:inputText>
+                <h:message for="updateEmail" styleClass="text-danger" />
+            </h:panelGroup>
+        </p:column>
+
+        <p:column headerText="Actions">
+            <h:panelGroup rendered="#{not c.editable}">
+                <p:commandLink action="#{client.toggleEditable(c)}" update=":form:dataTable">
+                    <i class="fa-regular fa-pen-to-square btn btn-warning bg-warning me-2 p-2 border-0" />
+                </p:commandLink>
+                <p:commandLink action="#{client.delete(c)}" update=":form:dataTable :formManagedBean:formManagedBeanMessages">
+                    <i class="fa-regular fa-trash-can btn btn-danger bg-danger border-0 p-2" />
+                </p:commandLink>
+            </h:panelGroup>
+            <h:panelGroup rendered="#{c.editable}">
+                <p:commandButton value='#{client.__("global.save")}' action="#{client.edit(c)}" update=":form:dataTable :formManagedBean:formManagedBeanMessages" styleClass="btn btn-success bg-success me-2 p-0 border-0"/>
+                <p:commandButton value='#{client.__("global.cancel")}' action="#{client.toggleEditable(c)}" update=":form:dataTable" styleClass="btn btn-secondary bg-secondary p-0 border-0"/>
+            </h:panelGroup>
+        </p:column>
+
+
+    </p:dataTable>
+
+</h:form>
+<h:form id="addForm">
+    <!-- Add button to show add form -->
+    <p:commandLink action="#{client.toggleShowAddForm()}" update=":addForm" rendered="#{not client.showAddForm}" >
+        <div class="btn tbn-primary bg-primary py-2 px-3 border-0 mt-3 text-white">
+            <i class="fa-solid fa-plus" /> #{client.__("global.add_client")}
+        </div>
+    </p:commandLink>
+
+    <p:panel rendered="#{client.showAddForm}" styleClass="my-4">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label for="insertFirstName" class="form-label">#{client.__("global.first_name")}</label>
+                <h:inputText id="insertFirstName" value="#{client.newClient.firstName}" required="true" class="form-control" requiredMessage='#{client.__("validator.required_first_name")}' validatorMessage='#{client.__("validator.invalid_first_name")}'>
+                    <f:validateRegex pattern="^[a-zA-Z]+$" />
+                </h:inputText>
+                <h:message for="insertFirstName" styleClass="text-danger" />
+            </div>
+            <div class="col-md-6">
+                <label for="insertLastName" class="form-label">#{client.__("global.last_name")}</label>
+                <h:inputText id="insertLastName" value="#{client.newClient.lastName}" required="true" class="form-control" requiredMessage='#{client.__("validator.required_last_name")}' validatorMessage='#{client.__("validator.invalid_last_name")}'>
+                    <f:validateRegex pattern="^[a-zA-Z ]+$" />
+                </h:inputText>
+                <h:message for="insertLastName" styleClass="text-danger" />
+            </div>
+            <div class="col-md-12">
+                <label for="insertEmail" class="form-label">#{client.__("global.email")}</label>
+                <h:inputText id="insertEmail" value="#{client.newClient.email}" required="true" class="form-control"  requiredMessage='#{client.__("validator.required_email")}' validatorMessage='#{client.__("validator.invalid_email")}'>
+                    <f:validateRegex pattern="^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$" />
+                </h:inputText>
+                <h:message for="insertEmail" styleClass="text-danger" />
+            </div>
+        </div>
+        <div class="mt-3">
+            <p:commandButton value='#{client.__("global.save")}' action="#{client.insert()}" update=":addForm :form:dataTable :formManagedBean:formManagedBeanMessages" styleClass="btn btn-success bg-success me-2 p-0 border-0"/>
+            <p:commandButton value='#{client.__("global.cancel")}' action="#{client.toggleShowAddForm()}" update=":addForm :form:dataTable" styleClass="btn btn-secondary bg-secondary p-0 border-0" immediate="true"/>
+        </div>
+    </p:panel>
+</h:form>
+</div>
+
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js" integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js" integrity="sha512-GWzVrcGlo0TxTRvz9ttioyYJ+Wwk9Ck0G81D+eO63BaqHaJ3YZX9wuqjwgfcV/MrB2PhaVX9DkYVhbFpStnqpQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+</h:body>
+</html>
